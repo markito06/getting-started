@@ -12,11 +12,11 @@ public class GreetingMailService {
 	@Inject
 	private Mailer mailer;
 
-	public void send(String to) {
-		mailer.send(Mail.withText(to, "An email from quarkus with attachment",
+	public void send(String destination, byte [] attach ) {
+		mailer.send(Mail.withText(destination, "An email from quarkus with attachment",
                 "This is my body")
-                .addAttachment("my-file.txt",
-                    "content of my file".getBytes(), "text/plain"));
+                .addAttachment("teste",
+                    attach, "application/octet-stream"));
 		
 	}
 	
