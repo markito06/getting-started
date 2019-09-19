@@ -10,9 +10,9 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 @ApplicationScoped
+@SuppressWarnings("unused")
 public class GreetingHelper {
 
 	public static boolean checkEmail(String adress) {
@@ -21,7 +21,8 @@ public class GreetingHelper {
 		return isOk;
 	}
 
-	private static boolean checkFileSize(File file) {
+
+	public static boolean checkFileSize(File file) {
 
 		boolean isOk = true;
 
@@ -38,7 +39,7 @@ public class GreetingHelper {
 
 				bytes = IOUtils.toByteArray(inputStream);
 
-				System.out.println("Done");
+				System.out.println("Get file done.");
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -46,6 +47,29 @@ public class GreetingHelper {
 		}
 		
 		return bytes;
+	}
+
+
+
+	public String getFileName(List<InputPart> inputParts) {
+		String original = "";
+		for (InputPart inputPart : inputParts) {
+			try {
+				MultivaluedMap<String, String> headers = inputPart.getHeaders();
+				  String[] contentDispositionHeader = headers.getFirst("Content-Disposition").split(";");
+			      for (String name : contentDispositionHeader) {
+			        if ((name.trim().startsWith("filename"))) {
+			          String[] tmp = name.split("=");
+			          original = tmp[1].trim().replaceAll("\"","");          
+			        }
+			      }
+			  	System.out.println("Get name done.");
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return original;
 	}
 
 

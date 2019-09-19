@@ -1,6 +1,5 @@
 package org.acme.quickstart;
 
-import java.io.File;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
@@ -43,18 +43,21 @@ public class GreetingResource {
 	}
 
 	@POST
-	@Path("/send")
+	@Path("/send/{to}/{key}")
 	@Produces(MediaType.TEXT_PLAIN)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public String sendEmailWithAttachment(MultipartFormDataInput request) {
+	public String sendEmailWithAttachment(MultipartFormDataInput request, @PathParam("to") String to,
+			@PathParam("key") String key) {
 		try {
 			Map<String, List<InputPart>> uploadForm = request.getFormDataMap();
-			String password = "teste";
-			List<InputPart> inputParts = uploadForm.get("file");
-			byte[] attachedFile = helper.getAttachedFile(inputParts);
-			byte[] encripted = cryptoService.encryptData(password, attachedFile);
-			String mail = "marcos.avc@gmail.com";
-			mailService.send(mail, encripted);
+	
+			List<InputPart> inputPartFile = uploadForm.get("file");
+			String fileName = helper.getFileName(inputPartFile);
+			byte[] attachedFile = helper.getAttachedFile(inputPartFile);
+
+			byte[] encripted = cryptoService.encryptData(key, attachedFile);
+		
+			mailService.send(to, encripted, fileName);
 
 		} catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
 				| InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException
@@ -65,17 +68,18 @@ public class GreetingResource {
 	}
 
 	@POST
-	@Path("/receive")
+	@Path("/receive/{key}")
 	@Produces(MediaType.MULTIPART_FORM_DATA)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response receive(MultipartFormDataInput request) {
+	public Response receive(MultipartFormDataInput request, @PathParam("key") String key) {
 		byte[] decrypted = {};
 		try {
 			Map<String, List<InputPart>> uploadForm = request.getFormDataMap();
-			String password = "teste";
+	
 			List<InputPart> inputParts = uploadForm.get("file");
+			
 			byte[] attachedFile = helper.getAttachedFile(inputParts);
-			decrypted = cryptoService.decryptData(password, attachedFile);
+			decrypted = cryptoService.decryptData(key, attachedFile);
 		} catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
 				| InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException
 				| InvalidKeySpecException e) {
