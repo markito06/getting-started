@@ -13,7 +13,7 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 
 @ApplicationScoped
 @SuppressWarnings("unused")
-public class GreetingHelper {
+public class SendMailHelper {
 
 	public static boolean checkEmail(String adress) {
 		boolean isOk = true;

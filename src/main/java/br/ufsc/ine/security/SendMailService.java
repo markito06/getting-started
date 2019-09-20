@@ -7,7 +7,7 @@ import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 
 @ApplicationScoped
-public class GreetingMailService {
+public class SendMailService {
 
 	@Inject
 	private Mailer mailer;

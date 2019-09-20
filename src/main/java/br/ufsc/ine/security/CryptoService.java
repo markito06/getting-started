@@ -20,7 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class GreetingCryptoService {
+public class CryptoService {
 
 		
 	private static final int keyLength = 256;

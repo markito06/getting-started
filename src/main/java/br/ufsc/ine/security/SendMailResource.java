@@ -24,16 +24,16 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 @Path("/app")
-public class GreetingResource {
+public class SendMailResource {
 
 	@Inject
-	private GreetingCryptoService cryptoService;
+	private CryptoService cryptoService;
 
 	@Inject
-	private GreetingMailService mailService;
+	private SendMailService mailService;
 
 	@Inject
-	private GreetingHelper helper;
+	private SendMailHelper helper;
 
 	@GET
 	@Path("/hello")
