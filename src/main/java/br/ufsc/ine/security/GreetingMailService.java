@@ -1,4 +1,4 @@
-package org.acme.quickstart;
+package br.ufsc.ine.security;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

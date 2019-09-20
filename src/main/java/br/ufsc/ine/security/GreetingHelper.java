@@ -1,4 +1,4 @@
-package org.acme.quickstart;
+package br.ufsc.ine.security;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.acme.quickstart;
+package br.ufsc.ine.security;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
