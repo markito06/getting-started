@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.servlet.annotation.MultipartConfig;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -18,10 +18,6 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 @Path("/app")
-@MultipartConfig(
-	maxFileSize=1024*1024*1,
-	maxRequestSize=1024*1024*1)
-@Consumes(MediaType.MULTIPART_FORM_DATA)
 public class SendMailResource {
 	
 	Logger logger = Logger.getLogger(SendMailResource.class);
@@ -39,9 +35,17 @@ public class SendMailResource {
 
 	@Inject
 	private SendMailHelper helper;
+	
+	@GET
+	@Path("/hello")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String hello() {
+	    return "hello";
+	}
 
 	@POST
 	@Path("/send/{to}/{key}")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response sendEmailWithAttachment(MultipartFormDataInput request, @PathParam("to") String to,
 			@PathParam("key") String key) {
 		Response response = Response.status(200).entity(MSG_SUCESS).build();
@@ -74,6 +78,7 @@ public class SendMailResource {
 
 	@POST
 	@Path("/receive/{key}")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.MULTIPART_FORM_DATA)
 	public Response receive(MultipartFormDataInput request, @PathParam("key") String key) {
 		Response response = null;
