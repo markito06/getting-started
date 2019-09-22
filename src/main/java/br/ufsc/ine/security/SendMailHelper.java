@@ -9,25 +9,22 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.io.IOUtils;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 
 @ApplicationScoped
 @SuppressWarnings("unused")
 public class SendMailHelper {
 
-	public static boolean checkEmail(String adress) {
-		boolean isOk = true;
-
-		return isOk;
+	Logger logger = Logger.getLogger(SendMailHelper.class);
+	private static int MAX_FILE_SIZE = 1024 * 1024 * 1;
+	
+	public boolean checkEmail(String adress) {
+		String regex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+		return adress.matches(regex);
 	}
-
-
-	public static boolean checkFileSize(File file) {
-
-		boolean isOk = true;
-
-		return isOk;
-	}
+	
+	
 
 	public byte [] getAttachedFile(List<InputPart> inputParts) {
 		byte[] bytes = {};
@@ -39,10 +36,10 @@ public class SendMailHelper {
 
 				bytes = IOUtils.toByteArray(inputStream);
 
-				System.out.println("Get file done.");
+				logger.info("Get file is done.");
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("Get file error: " , e);
 			}
 		}
 		
@@ -63,13 +60,17 @@ public class SendMailHelper {
 			          original = tmp[1].trim().replaceAll("\"","");          
 			        }
 			      }
-			  	System.out.println("Get name done.");
+			      logger.info("Get name is done.");
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Get file name error: " , e);
 			}
 		}
 		return original;
+	}
+
+	public boolean checkSize(byte[] attachedFile) {
+		return attachedFile.length < MAX_FILE_SIZE;
 	}
 
 

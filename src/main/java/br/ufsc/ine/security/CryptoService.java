@@ -19,16 +19,22 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.ApplicationScoped;
 
+import org.jboss.logging.Logger;
+
 @ApplicationScoped
 public class CryptoService {
 
-		
+	Logger logger = Logger.getLogger(CryptoService.class);
+
 	private static final int keyLength = 256;
-	private static final int iterationCount = 10000000;
+	private static final int iterationCount = 1000000;
 
 	public byte[] encryptData(String key, byte[] data)
 			throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
 			InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {
+
+		logger.info("Start encrypt.");
+		long start = System.currentTimeMillis();
 
 		SecureRandom secureRandom = new SecureRandom();
 
@@ -42,10 +48,10 @@ public class CryptoService {
 		// Configura modo
 		Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 		GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
-		
-		// Inicializa cifrador em modo cifrador
+
+		// Inicializa cifrador em modo de cifragem
 		cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
-		
+
 		// Cifrando o arquivo
 		byte[] encryptedData = cipher.doFinal(data);
 
@@ -53,6 +59,10 @@ public class CryptoService {
 		byteBuffer.putInt(iv.length);
 		byteBuffer.put(iv);
 		byteBuffer.put(encryptedData);
+
+		long end = System.currentTimeMillis();
+		logger.info("End of encrypt. Execution time in seconds: " + ((end - start) / 1000));
+
 		return byteBuffer.array();
 	}
 
@@ -60,12 +70,14 @@ public class CryptoService {
 			throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
 			InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {
 
-		//Empacota o arquivo criptografado para facilitar a leitura 
+		logger.info("Start decrypt.");
+		long start = System.currentTimeMillis();
+		// Empacota o arquivo criptografado para facilitar a leitura
 		ByteBuffer byteBuffer = ByteBuffer.wrap(encryptedData);
 
 		int noonceSize = byteBuffer.getInt();
 
-		// Check no tamanho do nounce 
+		// Check no tamanho do nounce
 		if (noonceSize < 12 || noonceSize >= 16) {
 			throw new IllegalArgumentException(
 					"Tamanho do nounce incorreto. Tenha certeza que o arquivo que esta recebendo foi codificado com modo AES.");
@@ -78,30 +90,35 @@ public class CryptoService {
 
 		byte[] cipherBytes = new byte[byteBuffer.remaining()];
 		byteBuffer.get(cipherBytes);
-		
-		// Configura modo 
+
+		// Configura modo
 		Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 		GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
 
 		// Inicializa cifrador em modo decifrar
 		cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
+		
+		byte[] doFinal = cipher.doFinal(cipherBytes);
 
+		long end = System.currentTimeMillis();
+		logger.info("End of decript. Execution time in seconds: " + ((end - start) / 1000));
 		// Decifrando o arquivo
-		return cipher.doFinal(cipherBytes);
+		return doFinal;
 
 	}
 
 	/**
 	 * Método deriva uma chave a partir de uma senha digitada pelo usuário
-	 *  */
+	 */
 	public static SecretKey generateSecretKey(String password, byte[] salt)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
-		//Configura o derivador
-		//Com a senha e o salt 
-		//Com Nº de iterações (iterationCount)  do algoritmo de hash e tamanho da chave (keyLength)
-		KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength); 
-		
-		//Constroi a instância da factory com o modo 'PBKDF2WithHmacSHA1'
+		// Configura o derivador
+		// Com a senha e o salt
+		// Com Nº de iterações (iterationCount) do algoritmo de hash e tamanho da chave
+		// (keyLength)
+		KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+
+		// Constroi a instância da factory com o modo 'PBKDF2WithHmacSHA1'
 		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();
 		return new SecretKeySpec(key, "AES");
