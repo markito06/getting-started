@@ -3,14 +3,15 @@
 An initiation project with the [https://quarkus.io](https://quarkus.io) solution.
 
 ##### Goal
- - Learn about cryptography.
- - Mode : AES/GCM/NoPadding
+ - Learn about Cryptography.
+ - Learn about Quarkus.
  
 ##### Environment
  - Java 8 +.
- - Maven 3.5 +. 
+ - Maven 3.5 +.
+ - [GraalVM](https://www.graalvm.org/), only if you create the native image.
 
-##### Start 
+##### Start in DEV and debug mode
 
 ```
 ./mvnw compile quarkus:dev: --debug \
@@ -32,4 +33,16 @@ curl -X POST \
  curl -X POST \
   http://localhost:8080/app/receive/<key_to_decrypt> \
   -F 'file=@/home/user/some_encripted_file'  
+```
+##### Create executable
+``` 
+  ./mvnw package -Pnative
+```
 
+##### Run executable
+```
+./target/send-secrete-attach-1.0-SNAPSHOT-runner \
+	-Dquarkus.mailer.from=account@gmail.com \
+	-Dquarkus.mailer.username=account@gmail.com \
+	-Dquarkus.mailer.password=mysecretekey
+```
